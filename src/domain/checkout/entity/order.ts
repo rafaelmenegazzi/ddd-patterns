@@ -5,7 +5,7 @@ export default class Order {
   private _items: OrderItem[];
   private _total: number;
 
-  constructor(id: string, customerId: string, items: OrderItem[]) {
+  constructor(id: string, customerId: string, items: OrderItem[] = []) {
     this._id = id;
     this._customerId = customerId;
     this._items = items;
@@ -23,6 +23,10 @@ export default class Order {
 
   get items(): OrderItem[] {
     return this._items;
+  }
+
+  addItems(items: OrderItem[]): void {
+    this._items = [ ...this._items, ...items ];
   }
 
   validate(): boolean {

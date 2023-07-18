@@ -8,10 +8,10 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
     await CustomerModel.create({
       id: entity.id,
       name: entity.name,
-      street: entity.Address.street,
-      number: entity.Address.number,
-      zipcode: entity.Address.zip,
-      city: entity.Address.city,
+      street: entity.Address?.street || null,
+      number: entity.Address?.number || null,
+      zipcode: entity.Address?.zip || null,
+      city: entity.Address?.city || null,
       active: entity.isActive(),
       rewardPoints: entity.rewardPoints,
     });
@@ -21,10 +21,10 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
     await CustomerModel.update(
       {
         name: entity.name,
-        street: entity.Address.street,
-        number: entity.Address.number,
-        zipcode: entity.Address.zip,
-        city: entity.Address.city,
+        street: entity.Address?.street || null,
+        number: entity.Address?.number || null,
+        zipcode: entity.Address?.zip || null,
+        city: entity.Address?.city || null,
         active: entity.isActive(),
         rewardPoints: entity.rewardPoints,
       },
@@ -50,30 +50,34 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
     }
 
     const customer = new Customer(id, customerModel.name);
-    const address = new Address(
-      customerModel.street,
-      customerModel.number,
-      customerModel.zipcode,
-      customerModel.city
-    );
-    customer.changeAddress(address);
+    if(customerModel.street) {
+      const address = new Address(
+        customerModel.street,
+        customerModel.number,
+        customerModel.zipcode,
+        customerModel.city
+      );
+      customer.Address = address;
+    }
     return customer;
   }
 
   async findAll(): Promise<Customer[]> {
     const customerModels = await CustomerModel.findAll();
 
-    const customers = customerModels.map((customerModels) => {
-      let customer = new Customer(customerModels.id, customerModels.name);
-      customer.addRewardPoints(customerModels.rewardPoints);
-      const address = new Address(
-        customerModels.street,
-        customerModels.number,
-        customerModels.zipcode,
-        customerModels.city
-      );
-      customer.changeAddress(address);
-      if (customerModels.active) {
+    const customers = customerModels.map((customerModel) => {
+      let customer = new Customer(customerModel.id, customerModel.name);
+      customer.addRewardPoints(customerModel.rewardPoints);
+      if(customerModel.street) {
+        const address = new Address(
+          customerModel.street,
+          customerModel.number,
+          customerModel.zipcode,
+          customerModel.city
+        );
+        customer.Address = address;
+      }
+      if (customerModel.active) {
         customer.activate();
       }
       return customer;

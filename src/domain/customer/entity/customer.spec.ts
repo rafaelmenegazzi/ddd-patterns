@@ -1,3 +1,4 @@
+import { CustomerAddressChangedEvent, CustomerCreatedEvent } from "../events";
 import Address from "../value-object/address";
 import Customer from "./customer";
 
@@ -59,5 +60,32 @@ describe("Customer unit tests", () => {
 
     customer.addRewardPoints(10);
     expect(customer.rewardPoints).toBe(20);
+  });
+
+  it("should add event after create customer", () => {
+    const customer = Customer.create("1", "Customer 1");
+    
+    expect(customer.events.size).toBe(1)
+    
+    const [first] = customer.events
+    expect(first).toBeInstanceOf(CustomerCreatedEvent)
+    expect(first).toEqual({
+      dataTimeOccurred: expect.any(Date),
+      eventData: customer
+    })
+  });
+
+  it("should add event after customer address changed", () => {
+    const customer = Customer.create("1", "Customer 1");
+    customer.changeAddress(new Address("street 2", 2, "123456789", "city 2"))
+    
+    expect(customer.events.size).toBe(2)
+    
+    const [, second] = customer.events
+    expect(second).toBeInstanceOf(CustomerAddressChangedEvent)
+    expect(second).toEqual({
+      dataTimeOccurred: expect.any(Date),
+      eventData: customer
+    })
   });
 });
